@@ -461,7 +461,7 @@ if [[ -x /usr/bin/aws_zsh_completer.sh ]] ; then
 fi
 
 # Replacing dircolors
-eval $(dircolors ~/.dotfiles/shell-tuning/dircolors.awsm)
+eval $(dircolors ~/.dotfiles/shell/env/dircolors.awsm)
 
 # ZSH HL
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
