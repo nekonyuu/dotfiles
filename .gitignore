@@ -1,0 +1,6 @@
+# private folders
+shell/ssh
+auth/
+
+# git repos
+shell/vim/bundle

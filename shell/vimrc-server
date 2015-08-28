@@ -1,0 +1,38 @@
+set nocompatible
+ 
+set statusline=%<\ %n:%f\ %m%r%y%=%-35.(line:\ %l\ of\ %L,\ col:\ %c%V\ (%P)%)
+set laststatus=2
+
+" Syntax
+filetype plugin indent on
+syntax on
+
+set number
+set hlsearch
+set showmatch
+set incsearch
+set ignorecase
+set autoindent
+set history=1000
+set cursorline
+
+" Default tab settings
+set expandtab
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+set backspace=indent,eol,start
+
+" 2000's Hipster
+set nobackup
+
+" Better colorscheme
+if $COLORTERM=='gnome-terminal'
+    set term=gnome-256color
+endif
+
+if $TERM=='screen-256color'
+    set term=screen-256color
+endif
+
+colorscheme elflord

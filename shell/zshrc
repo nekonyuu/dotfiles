@@ -1,0 +1,510 @@
+# Exports
+export EDITOR="vim"
+export PAGER="less"
+export LESS='-R'
+export LESSOPEN='|~/.lessfilter %s'
+export PATH=$PATH:/usr/bin/vendor_perl:~/.dotfiles/bin:/opt/vmware/bin:$HOME/.pyenv/bin
+export HASTE_SERVER=https://paste.nekolover.net/
+fpath=(~/.dotfiles/shell/zsh $fpath)
+
+# RBENV
+if [[ -x `which rbenv` ]]; then
+    eval "$(rbenv init -)"
+fi
+
+# PYENV
+if [[ -x `which pyenv` ]]; then
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+
+# lesspipe
+if [[ -x `which lesspipe.sh` ]]; then
+    eval "$(lesspipe.sh)"
+fi
+
+# Keep emacs style zsh binds
+bindkey -e
+stty -ixon
+
+# Loads
+autoload -Uz vcs_info
+autoload -U colors && colors
+autoload compinit && compinit -i
+autoload -U select-word-style && select-word-style bash
+autoload -U add-zsh-hook
+autoload -U edit-command-line
+zle -N edit-command-line
+bindkey '\C-x\C-e' edit-command-line
+autoload -U url-quote-magic
+zle -N self-insert url-quote-magic
+bindkey "^[m" copy-prev-shell-word
+bindkey " " magic-space # do history expansion on space
+
+# Opts
+setopt correct
+setopt auto_cd
+setopt multios
+setopt cdablevars
+setopt prompt_subst
+setopt long_list_jobs
+unsetopt menu_complete   # do not autoselect the first completion entry
+unsetopt flowcontrol
+setopt auto_menu         # show completion menu on succesive tab press
+setopt complete_in_word
+setopt always_to_end
+
+# History
+if [ -z $HISTFILE ]; then
+    HISTFILE=$HOME/.zsh_history
+fi
+
+HISTSIZE=10000
+SAVEHIST=10000
+
+setopt append_history
+setopt extended_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups # ignore duplication command history list
+setopt hist_ignore_space
+setopt hist_verify
+setopt inc_append_history
+setopt share_history # share command history data
+
+# Keys fixes
+typeset -A key
+
+key[Home]=${terminfo[khome]}
+key[End]=${terminfo[kend]}
+key[Insert]=${terminfo[kich1]}
+key[Delete]=${terminfo[kdch1]}
+key[Up]=${terminfo[kcuu1]}
+key[Down]=${terminfo[kcud1]}
+key[Left]=${terminfo[kcub1]}
+key[Right]=${terminfo[kcuf1]}
+key[PageUp]=${terminfo[kpp]}
+key[PageDown]=${terminfo[knp]}
+
+[[ -n "${key[Home]}"    ]]  && bindkey  "${key[Home]}"    beginning-of-line
+[[ -n "${key[End]}"     ]]  && bindkey  "${key[End]}"     end-of-line
+[[ -n "${key[Insert]}"  ]]  && bindkey  "${key[Insert]}"  overwrite-mode
+[[ -n "${key[Delete]}"  ]]  && bindkey  "${key[Delete]}"  delete-char
+[[ -n "${key[Up]}"      ]]  && bindkey  "${key[Up]}"      up-line-or-history
+[[ -n "${key[Down]}"    ]]  && bindkey  "${key[Down]}"    down-line-or-history
+[[ -n "${key[Left]}"    ]]  && bindkey  "${key[Left]}"    backward-char
+[[ -n "${key[Right]}"   ]]  && bindkey  "${key[Right]}"   forward-char
+[[ -n "${key[PageUp]}"   ]]  && bindkey  "${key[PageUp]}"    history-beginning-search-backward
+[[ -n "${key[PageDown]}" ]]  && bindkey  "${key[PageDown]}"  history-beginning-search-forward
+
+bindkey ";5D" backward-word
+bindkey ";5C" forward-word
+bindkey ";5D" emacs-backward-word
+bindkey ";5C" emacs-forward-word
+
+if [[ $TERM == 'screen-256color' ]] ; then
+    bindkey "5D" backward-word
+    bindkey "5C" forward-word
+    bindkey "5D" emacs-backward-word
+    bindkey "5C" emacs-forward-word
+fi
+
+# Finally, make sure the terminal is in application mode, when zle is
+# active. Only then are the values from $terminfo valid.
+if (( ${+terminfo[smkx]} )) && (( ${+terminfo[rmkx]} )); then
+    function zle-line-init () {
+        printf '%s' "${terminfo[smkx]}"
+    }
+    function zle-line-finish () {
+        printf '%s' "${terminfo[rmkx]}"
+    }
+    zle -N zle-line-init
+    zle -N zle-line-finish
+fi
+
+# ZSH Confs
+zstyle ':completion:*:*:*:*:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' list-colors ''
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#) ([0-9a-z-]#)*=01;34=0=01'
+zstyle ':completion:*:*:*:*:processes' command "ps -u `whoami` -o pid,user,comm -w -w"
+zstyle ':completion:*:processes' command 'ps -ax'
+zstyle ':completion:*:processes-names' command 'ps -aeo comm='
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:*:kill:*' menu yes select
+zstyle ':completion:*:*:killall:*:processes-names' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:*:killall:*' menu yes select
+zstyle ':completion:*:cd:*' tag-order local-directories directory-stack path-directories
+
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' unstagedstr '%F{red}*'   # display this when there are unstaged changes
+zstyle ':vcs_info:*' stagedstr '%F{yellow}+'  # display this when there are staged changes
+zstyle ':vcs_info:*' actionformats '%F{5}%F{5}[%F{2}%b%F{3}|%F{1}%a%c%u%F{5}]%f '
+zstyle ':vcs_info:*' formats '%F{5}%F{5}[%F{2}%b%c%u%F{5}]%f '
+zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b%F{1}:%F{3}%r'
+zstyle ':vcs_info:*' enable git cvs svn
+
+theme_precmd () {
+    vcs_info
+}
+
+local return_code="%(?..%{$fg[red]%}%? ↵%{$reset_color%})"
+
+if [[ $EUID -eq 0 ]] ; then
+    local user_host='%{$terminfo[bold]$fg[red]%}%n@%m%{$reset_color%}'
+else
+    local user_host='%{$terminfo[bold]$fg[green]%}%n@%m%{$reset_color%}'
+fi
+
+local current_dir='%{$terminfo[bold]$fg[blue]%} %~%{$reset_color%}'
+local branch='${vcs_info_msg_0_}%{$reset_color%}'
+
+# Shell PS
+PROMPT="%{$fg[blue]%}[%*]%{$reset_color%} ${user_host} ${current_dir} ${branch}> "
+RPS1="${return_code}"
+add-zsh-hook precmd theme_precmd
+
+
+# SVN Functions
+function svn_prompt_info {
+    if [ $(in_svn) ]; then
+        if [ "x$SVN_SHOW_BRANCH" = "xtrue" ]; then
+            unset SVN_SHOW_BRANCH
+            _DISPLAY=$(svn_get_branch_name)
+        else
+            _DISPLAY=$(svn_get_repo_name)
+        fi
+        echo "$ZSH_PROMPT_BASE_COLOR$ZSH_THEME_SVN_PROMPT_PREFIX\
+$ZSH_THEME_REPO_NAME_COLOR$_DISPLAY$ZSH_PROMPT_BASE_COLOR$ZSH_THEME_SVN_PROMPT_SUFFIX$ZSH_PROMPT_BASE_COLOR$(svn_dirty)$ZSH_PROMPT_BASE_COLOR"
+        unset _DISPLAY
+    fi
+}
+
+function in_svn() {
+    if [[ -d .svn ]]; then
+        echo 1
+    fi
+}
+
+function svn_get_repo_name {
+    if [ $(in_svn) ]; then
+        svn info | sed -n 's/Repository\ Root:\ .*\///p' | read SVN_ROOT
+
+        svn info | sed -n "s/URL:\ .*$SVN_ROOT\///p"
+    fi
+}
+
+function svn_get_branch_name {
+    _DISPLAY=$(svn info 2> /dev/null | awk -F/ '/^URL:/ { for (i=0; i<=NF; i++) { if ($i == "branches" || $i == "tags" ) { print $(i+1); break }; if ($i == "trunk") { print $i; break } } }')
+    if [ "x$_DISPLAY" = "x" ]; then
+        svn_get_repo_name
+    else
+        echo $_DISPLAY
+    fi
+    unset _DISPLAY
+}
+
+function svn_get_rev_nr {
+    if [ $(in_svn) ]; then
+        svn info 2> /dev/null | sed -n s/Revision:\ //p
+    fi
+}
+
+function svn_dirty_choose {
+    if [ $(in_svn) ]; then
+        svn status 2> /dev/null | grep -Eq '^\s*[ACDIM!?L]'
+        if [ $pipestatus[-1] -eq 0 ]; then
+            # Grep exits with 0 when "One or more lines were selected", return "dirty".
+            echo $1
+        else
+            # Otherwise, no lines were found, or an error occurred. Return clean.
+            echo $2
+        fi
+    fi
+}
+
+function svn_dirty {
+    svn_dirty_choose $ZSH_THEME_SVN_PROMPT_DIRTY $ZSH_THEME_SVN_PROMPT_CLEAN
+}
+
+# GIT Functions
+function current_branch() {
+  ref=$(git symbolic-ref HEAD 2> /dev/null) || \
+  ref=$(git rev-parse --short HEAD 2> /dev/null) || return
+  echo ${ref#refs/heads/}
+}
+
+function current_repository() {
+  ref=$(git symbolic-ref HEAD 2> /dev/null) || \
+  ref=$(git rev-parse --short HEAD 2> /dev/null) || return
+  echo $(git remote -v | cut -d':' -f 2)
+}
+
+# get the name of the branch we are on
+function git_prompt_info() {
+  ref=$(git symbolic-ref HEAD 2> /dev/null) || \
+  ref=$(git rev-parse --short HEAD 2> /dev/null) || return
+  echo "$ZSH_THEME_GIT_PROMPT_PREFIX${ref#refs/heads/}$(parse_git_dirty)$ZSH_THEME_GIT_PROMPT_SUFFIX"
+}
+
+
+# Checks if working tree is dirty
+parse_git_dirty() {
+  local SUBMODULE_SYNTAX=''
+  if [[ "$(git config --get oh-my-zsh.hide-status)" != "1" ]]; then
+    if [[ $POST_1_7_2_GIT -gt 0 ]]; then
+          SUBMODULE_SYNTAX="--ignore-submodules=dirty"
+    fi
+    if [[ -n $(git status -s ${SUBMODULE_SYNTAX}  2> /dev/null) ]]; then
+      echo "$ZSH_THEME_GIT_PROMPT_DIRTY"
+    else
+      echo "$ZSH_THEME_GIT_PROMPT_CLEAN"
+    fi
+  fi
+}
+
+# get the difference between the local and remote branches
+git_remote_status() {
+    remote=${$(git rev-parse --verify ${hook_com[branch]}@{upstream} --symbolic-full-name 2>/dev/null)/refs\/remotes\/}
+    if [[ -n ${remote} ]] ; then
+        ahead=$(git rev-list ${hook_com[branch]}@{upstream}..HEAD 2>/dev/null | wc -l)
+        behind=$(git rev-list HEAD..${hook_com[branch]}@{upstream} 2>/dev/null | wc -l)
+
+        if [ $ahead -eq 0 ] && [ $behind -gt 0 ]
+        then
+            echo "$ZSH_THEME_GIT_PROMPT_BEHIND_REMOTE"
+        elif [ $ahead -gt 0 ] && [ $behind -eq 0 ]
+        then
+            echo "$ZSH_THEME_GIT_PROMPT_AHEAD_REMOTE"
+        elif [ $ahead -gt 0 ] && [ $behind -gt 0 ]
+        then
+            echo "$ZSH_THEME_GIT_PROMPT_DIVERGED_REMOTE"
+        fi
+    fi
+}
+
+# Checks if there are commits ahead from remote
+function git_prompt_ahead() {
+  if $(echo "$(git log origin/$(current_branch)..HEAD 2> /dev/null)" | grep '^commit' &> /dev/null); then
+    echo "$ZSH_THEME_GIT_PROMPT_AHEAD"
+  fi
+}
+
+# Formats prompt string for current git commit short SHA
+function git_prompt_short_sha() {
+  SHA=$(git rev-parse --short HEAD 2> /dev/null) && echo "$ZSH_THEME_GIT_PROMPT_SHA_BEFORE$SHA$ZSH_THEME_GIT_PROMPT_SHA_AFTER"
+}
+
+# Formats prompt string for current git commit long SHA
+function git_prompt_long_sha() {
+  SHA=$(git rev-parse HEAD 2> /dev/null) && echo "$ZSH_THEME_GIT_PROMPT_SHA_BEFORE$SHA$ZSH_THEME_GIT_PROMPT_SHA_AFTER"
+}
+
+# Get the status of the working tree
+git_prompt_status() {
+  INDEX=$(git status --porcelain -b 2> /dev/null)
+  STATUS=""
+  if $(echo "$INDEX" | grep '^?? ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_UNTRACKED$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^A  ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_ADDED$STATUS"
+  elif $(echo "$INDEX" | grep '^M  ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_ADDED$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^ M ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
+  elif $(echo "$INDEX" | grep '^AM ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
+  elif $(echo "$INDEX" | grep '^ T ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_MODIFIED$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^R  ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_RENAMED$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^ D ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_DELETED$STATUS"
+  elif $(echo "$INDEX" | grep '^D  ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_DELETED$STATUS"
+  elif $(echo "$INDEX" | grep '^AD ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_DELETED$STATUS"
+  fi
+  if $(git rev-parse --verify refs/stash >/dev/null 2>&1); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_STASHED$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^UU ' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_UNMERGED$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^## .*ahead' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_AHEAD$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^## .*behind' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_BEHIND$STATUS"
+  fi
+  if $(echo "$INDEX" | grep '^## .*diverged' &> /dev/null); then
+    STATUS="$ZSH_THEME_GIT_PROMPT_DIVERGED$STATUS"
+  fi
+  echo $STATUS
+}
+
+# Aliases
+# ls colors
+autoload colors; colors;
+export LSCOLORS="Gxfxcxdxbxegedabagacad"
+# Enable ls colors
+ls --color -d . &>/dev/null 2>&1 && alias ls='ls --color=tty' || alias ls='ls -G'
+
+# Others
+alias vimde='vim -u ~/.vimrc-ide'
+alias gvimde='gvim -u ~/.vimrc-ide'
+alias tmux='tmux -2'
+alias ll='ls -lh'
+alias l='ls -lhA1'
+alias la='ls -lhA'
+alias lsa='ls -lha'
+alias history='fc -l 1'
+alias grep='grep --color=auto'
+alias anonssh='ssh -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null"'
+
+## GIT
+alias gst='git status'
+compdef _git gst=git-status
+alias gl='git pull'
+compdef _git gl=git-pull
+alias gp='git push'
+compdef _git gp=git-push
+alias gd='git diff'
+gdv() { git diff -w "$@" | view - }
+compdef _git gdv=git-diff
+alias gc='git commit -v'
+compdef _git gc=git-commit
+alias gca='git commit -v -a'
+compdef _git gca=git-commit
+alias gco='git checkout'
+compdef _git gco=git-checkout
+alias gb='git branch'
+compdef _git gb=git-branch
+alias gba='git branch -a'
+compdef _git gba=git-branch
+alias gcount='git shortlog -sn'
+compdef gcount=git
+alias gcl='git config --list'
+alias gcp='git cherry-pick'
+compdef _git gcp=git-cherry-pick
+alias glg='git log --stat --max-count=5'
+compdef _git glg=git-log
+alias glgg='git log --graph --max-count=5'
+compdef _git glgg=git-log
+alias glgga='git log --graph --decorate --all'
+compdef _git glgga=git-log
+alias gss='git status -s'
+compdef _git gss=git-status
+alias ga='git add'
+compdef _git ga=git-add
+alias gm='git merge'
+compdef _git gm=git-merge
+alias gwc='git whatchanged -p --abbrev-commit --pretty=medium'
+alias ggpull='git pull origin $(current_branch)'
+compdef ggpull=git
+alias ggrebpull='git pull --rebase origin $(current_branch)'
+compdef ggrebpull=git
+alias ggpush='git push origin $(current_branch)'
+compdef ggpush=git
+alias ggpnp='git pull origin $(current_branch) && git push origin $(current_branch)'
+compdef ggpnp=git
+alias ggraph='git log --format="%h%Cgreen%d%Creset %Cblue%an%Creset %C(white)%ad%Creset %s" --graph --all --date="short"'
+
+# APT
+alias aps='aptitude search'
+alias as="aptitude -F \"* %p -> %d \n(%v/%V)\" --no-gui --disable-columns search"  # search package
+alias asrc='apt-get source'
+alias ac='sudo aptitude clean'
+alias ad='sudo aptitude update'
+alias adg='sudo aptitude update && sudo aptitude full-upgrade'
+alias ai='sudo aptitude install'
+alias ap='sudo aptitude purge'
+alias ar='sudo aptitude remove'
+
+# Arch
+alias pacupg='sudo pacman -Syu'        # Synchronize with repositories before upgrading packages that are out of date on the local system.
+alias pacin='sudo pacman -S'           # Install specific package(s) from the repositories
+alias pacins='sudo pacman -U'          # Install specific package not from the repositories but from a file
+alias pacre='sudo pacman -R'           # Remove the specified package(s), retaining its configuration(s) and required dependencies
+alias pacrem='sudo pacman -Rns'        # Remove the specified package(s), its configuration(s) and unneeded dependencies
+alias pacrep='pacman -Si'              # Display information about a given package in the repositories
+alias pacreps='pacman -Ss'             # Search for package(s) in the repositories
+alias pacloc='pacman -Qi'              # Display information about a given package in the local database
+alias paclocs='pacman -Qs'             # Search for package(s) in the local database
+
+# Server Aliases - not used
+alias vzlist='vzlist -o veid,hostname,ip,numproc,laverage -s name'
+alias pserve='python -m http.server'
+
+# Useful aliases
+alias genname="python -c \"import random, os ; names = open(os.path.expanduser('~/.dotfiles/config/random-names')).readlines() ; print(names[random.randint(0, len(names) - 1)].strip())\""
+
+# Bullshit
+if [[ -x `which nc` ]] ; then
+  alias nyan='nc -v nyancat.dakko.us 23' # nyan cat
+fi
+
+if [[ -x `which toilet` ]] ; then
+    fuck() {
+        if killall -9 "$2"; then
+            echo ; echo " (╯°□°）╯︵$(echo "$2"|toilet -f term -F rotate)"; echo
+        fi
+    }
+fi
+
+# Sourcing aws-cli completion
+if [[ -x /usr/bin/aws_zsh_completer.sh ]] ; then
+    source /usr/bin/aws_zsh_completer.sh
+fi
+
+# Replacing dircolors
+eval $(dircolors ~/.dotfiles/shell-tuning/dircolors.awsm)
+
+# ZSH HL
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root line cursor)
+ZSH_HIGHLIGHT_STYLES[cursor]='bg=red'
+ZSH_HIGHLIGHT_STYLES[path]='fg=blue'
+
+# Others
+# virsh wrapper
+svirsh() {
+    virsh -c "qemu+ssh://$1/system"
+}
+
+# ssh wrapper that rename current tmux window to the hostname of the remote host.
+ssh() {
+    # Do nothing if we are not inside tmux or ssh is called without arguments
+    if [[ $# == 0 || -z $TMUX ]]; then
+        command ssh $@
+        return
+    fi
+    # The hostname is the last parameter (i.e. ${(P)#})
+    local remote=${${(P)#}}
+    local old_name="$(tmux display-message -p '#W')"
+    local renamed=0
+    # Save the current name
+    if [[ $remote != -* ]]; then
+        renamed=1
+        tmux rename-window $remote
+    fi
+    command ssh $@
+    if [[ $renamed == 1 ]]; then
+        tmux rename-window "$old_name"
+    fi
+}
+
+nofilestop() {
+    echo -e "NFI\tPNAME\tPID\tUSER"
+    lsof 2>/dev/null | awk '$4 ~ /[0-9]+[rwu -].*/{p[$1"\t"$2"\t"$3]=p[$1"\t"$2"\t"$3]+1}END{for (i in p) print p[i],i}' | sort -nr | head
+}
+
+# Sourcing user files
+if [ -d ~/.zshrc.d ] ; then
+    for file in ~/.zshrc.d/**/*(.) ; do
+        source $file
+    done
+fi

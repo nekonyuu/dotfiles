@@ -1,0 +1,101 @@
+set nocompatible
+
+" Syntax
+filetype plugin indent on
+syntax on
+
+set number
+set hlsearch
+set showmatch
+set incsearch
+set ignorecase
+set autoindent
+set history=1000
+set cursorline
+
+if has("unnamedplus")
+  set clipboard=unnamedplus
+elseif has("clipboard")
+  set clipboard=unnamed
+endif
+
+" Default tab settings
+set expandtab
+set shiftwidth=4
+set tabstop=4
+set softtabstop=4
+set backspace=indent,eol,start
+
+" 2000's Hipster
+set nobackup
+
+" Disabling BCE
+set t_ut=
+
+""""""""""" BEGIN PLUGIN MANAGEMENT
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'VundleVim/Vundle.vim'
+Plugin 'bling/vim-airline'
+Plugin 'edkolev/tmuxline.vim'
+Plugin 'ctrlpvim/ctrlp.vim'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'scrooloose/nerdtree'
+Plugin 'scrooloose/syntastic'
+Plugin 'rodjek/vim-puppet'
+Plugin 'saltstack/salt-vim'
+Plugin 'mhinz/vim-signify'
+Plugin 'godlygeek/tabular'
+Plugin 'majutsushi/tagbar'
+Plugin 'chase/vim-ansible-yaml'
+Plugin 'tpope/vim-fugitive'
+Plugin 'plasticboy/vim-markdown'
+Plugin 'derekwyatt/vim-scala'
+Plugin 'tpope/vim-surround'
+Plugin 'markcornick/vim-terraform'
+Plugin 'chriskempson/vim-tomorrow-theme'
+Plugin 'bronson/vim-trailing-whitespace'
+
+call vundle#end()
+""""""""""" END PLUGIN MANAGEMENT
+
+" Nerdtree
+" autocmd vimenter * NERDTree
+let NERDTreeShowBookmarks=1
+let NERDTreeChDirMode=0
+let NERDTreeQuitOnOpen=0
+let NERDTreeMouseMode=2
+let NERDTreeShowHidden=1
+let NERDTreeIgnore=['\.pyc','\~$','\.swo$','\.swp$','\.git','\.hg','\.svn','\.bzr']
+let NERDTreeKeepTreeInNewTab=1
+let g:nerdtree_tabs_open_on_gui_startup=0
+
+" Syntastic - disable some checks
+let g:syntastic_puppet_puppetlint_args = '--no-80chars-check --no-variable_scope-check'
+
+" Better colorscheme
+if $COLORTERM=='gnome-terminal' || $TERM=='xterm'
+    set term=gnome-256color
+endif
+
+if $TERM=='screen-256color'
+    set term=screen-256color
+endif
+
+" Airline
+let g:airline_powerline_fonts = 1
+set laststatus=2
+let g:airline#extensions#tabline#enabled = 1
+
+silent! colorscheme Tomorrow-Night
+set background=dark
+
+" fix for slow ruby
+" set regexpengine=1
+
+" Nasty hidden chars
+set listchars=nbsp:¬,eol:¶,tab:>-,extends:»,precedes:«,trail:•
+
+" bind sudo save, for sudo forgetters
+ca w!! w !sudo tee > /dev/null "%"
