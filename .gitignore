@@ -3,4 +3,4 @@ shell/ssh
 auth/
 
 # git repos
-shell/vim/bundle
+# shell/vim/bundle
