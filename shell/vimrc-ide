@@ -1,12 +1,5 @@
 set nocompatible
 
-" Pathogen
-" let g:pathogen_disabled = ["airline"]
-call pathogen#infect()
-call pathogen#helptags()
-
-" set statusline=%<\ %n:%f\ %m%r%y%=%-35.(line:\ %l\ of\ %L,\ col:\ %c%V\ (%P)%)
-
 " Syntax
 filetype plugin indent on
 syntax on
@@ -100,6 +93,9 @@ set background=dark
 
 " fix for slow ruby
 " set regexpengine=1
+
+" Nasty hidden chars
+set listchars=nbsp:¬,eol:¶,tab:>-,extends:»,precedes:«,trail:•
 
 " bind sudo save, for sudo forgetters
 ca w!! w !sudo tee > /dev/null "%"
