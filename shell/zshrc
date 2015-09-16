@@ -461,13 +461,17 @@ if [[ -x /usr/bin/aws_zsh_completer.sh ]] ; then
 fi
 
 # Replacing dircolors
-eval $(dircolors ~/.dotfiles/shell/env/dircolors.awsm)
+if [[ -x `which dircolors` ]] ; then
+    eval $(dircolors ~/.dotfiles/shell/env/dircolors.awsm)
+fi
 
 # ZSH HL
-source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root line cursor)
-ZSH_HIGHLIGHT_STYLES[cursor]='bg=red'
-ZSH_HIGHLIGHT_STYLES[path]='fg=blue'
+if [[ -x /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] ; then
+    source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+    ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern root line cursor)
+    ZSH_HIGHLIGHT_STYLES[cursor]='bg=red'
+    ZSH_HIGHLIGHT_STYLES[path]='fg=blue'
+fi
 
 # Others
 # virsh wrapper
