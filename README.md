@@ -45,3 +45,13 @@ vim +PluginInstall +qall
 ```shell
 ln -s ~/.dotfiles/shell/tmux.conf ~/.tmux.conf
 ```
+
+## Customizations
+
+### Airline ZSH PS1
+
+You can enable a PS1 resembling my tmux theme by creating ```~/.zshrc.d/airline``` with the following content :
+
+```bash
+export AIRLINE_PS1="1"
+```

@@ -163,7 +163,6 @@ PROMPT="%{$fg[blue]%}[%*]%{$reset_color%} ${user_host} ${current_dir} ${branch}>
 RPS1="${return_code}"
 add-zsh-hook precmd theme_precmd
 
-
 # SVN Functions
 function svn_prompt_info {
     if [ $(in_svn) ]; then
@@ -460,6 +459,10 @@ if [[ -x /usr/bin/aws_zsh_completer.sh ]] ; then
     source /usr/bin/aws_zsh_completer.sh
 fi
 
+if [[ -x /usr/local/share/zsh/site-functions/_aws ]] ; then
+    source /usr/local/share/zsh/site-functions/_aws
+fi
+
 # Replacing dircolors
 if [[ -x `which dircolors` ]] ; then
     eval $(dircolors ~/.dotfiles/shell/env/dircolors.awsm)
@@ -512,3 +515,9 @@ if [ -d ~/.zshrc.d ] ; then
         source $file
     done
 fi
+
+# Override if AIRLINE_PS1 is defined to "1"
+if [[ "${AIRLINE_PS1}" == "1" ]] ; then
+    source ~/.dotfiles/shell/airline_ps1.sh
+fi
+

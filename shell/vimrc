@@ -57,6 +57,8 @@ Plugin 'markcornick/vim-terraform'
 Plugin 'chriskempson/vim-tomorrow-theme'
 Plugin 'bronson/vim-trailing-whitespace'
 
+Plugin 'edkolev/promptline.vim'
+
 call vundle#end()
 """"""""""" END PLUGIN MANAGEMENT
 
