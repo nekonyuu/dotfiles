@@ -90,6 +90,9 @@ let g:airline_powerline_fonts = 1
 set laststatus=2
 let g:airline#extensions#tabline#enabled = 1
 
+" Promptline config
+let g:promptline_preset = 'full'
+
 silent! colorscheme Tomorrow-Night
 set background=dark
 
