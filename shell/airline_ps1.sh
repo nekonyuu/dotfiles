@@ -150,17 +150,19 @@ function __promptline_battery {
   fi
 
   # linux
-  for possible_battery_dir in /sys/class/power_supply/BAT*; do
-    if [[ -d $possible_battery_dir && -f "$possible_battery_dir/energy_full" && -f "$possible_battery_dir/energy_now" ]]; then
-      current_capacity=$( <"$possible_battery_dir/energy_now" )
-      battery_capacity=$( <"$possible_battery_dir/energy_full" )
-      local battery_level=$(($current_capacity * 100 / $battery_capacity))
-      [[ $battery_level -gt $threshold ]] && return 1
+  if stat -t '/sys/class/power_supply/BAT*' >/dev/null 2>&1 ; then
+    for possible_battery_dir in /sys/class/power_supply/BAT*; do
+      if [[ -d $possible_battery_dir && -f "$possible_battery_dir/energy_full" && -f "$possible_battery_dir/energy_now" ]]; then
+        current_capacity=$( <"$possible_battery_dir/energy_now" )
+        battery_capacity=$( <"$possible_battery_dir/energy_full" )
+        local battery_level=$(($current_capacity * 100 / $battery_capacity))
+        [[ $battery_level -gt $threshold ]] && return 1
 
-      printf "%s" "${battery_symbol}${battery_level}${percent_sign}"
-      return
-    fi
-  done
+        printf "%s" "${battery_symbol}${battery_level}${percent_sign}"
+        return
+      fi
+    done
+  fi
 
 return 1
 }
