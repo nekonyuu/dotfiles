@@ -1,0 +1,101 @@
+#!/bin/bash
+#distribution=$(cat /etc/issue | cut -d" " -f 1);
+distribution=$(cat /etc/issue | grep -v Kernel | cut -d" " -f 1);
+echo HOSTNAME:$HOSTNAME;
+# detail materiel de la machine
+# Marque / Vendeur
+dmidecode | grep Vendor | grep -Ev Unknown | awk '{print $1 $2 $3 $4 $5 $6}';
+# Model
+dmidecode | grep "Product Name:"| awk '{print $1 $2 $3 $4 $5 $6}';
+# Serial number
+dmidecode | grep "Serial Number" | grep -Ev "Not Specified" | grep -Ev None | awk '{print $1 $2 $3 $4 $5 $6}';
+#
+
+#Operating System
+name=`uname -s`
+kern=`uname -r`
+echo 'DISTRIBUTION:'$distribution;
+echo 'KERNEL:'$kern;
+#RAMsizekb=`cat /proc/meminfo | grep MemTotal |cut -d: -f2 | cut -c8- | cut -d" " -f1`
+RAMsizekb=`cat /proc/meminfo | grep MemTotal |cut -d: -f2 | cut -dk -f1`
+RAMsizekb=`expr $RAMsizekb / 1`
+RAMsize=`expr $RAMsizekb / 1024`
+echo MEMORY:$RAMsize MB;
+
+#CPU
+nbcpu=`cat /proc/cpuinfo | grep "processor" | wc -l`;
+#echo NB CPU :$nbcpu;
+
+# Processor
+cpu_device_id=`cat /proc/cpuinfo | grep "processor" | cut -d: -f2 | cut -c2-`
+for i in $cpu_device_id; do
+  count=` expr $i + 1`
+  cpu_name=`cat /proc/cpuinfo | grep "model name" | cut -d: -f2 | cut -c2- | tr "\n" "^" | cut -d^ -f$count`
+  cpu_freq=`cat /proc/cpuinfo | grep "cpu MHz" | cut -d: -f2 | cut -c2- | cut -d. -f1 | tr "\n" "^" | cut -d^ -f$count`
+  cpu_manufacturer=`cat /proc/cpuinfo | grep "vendor_id" | cut -d: -f2 | cut -c2- | tr "\n" "^" | cut -d^ -f$count`
+# cpu_power=`lshal --long --show /org/freedesktop/Hal/devices/acpi_CPU0 | grep processor.can_throttle | cut -d" " -f5 | cut -d"'" -f2`
+   echo "CPU:$cpu_name $cpu_freq $i $cpu_manufacturer";
+   done
+   echo "-----------------------------------------------------------------------------";
+# netwok
+for i in `ip l | grep mtu | awk -F: '{ print $2 }'`
+do ip=`ip a l dev $i | grep -w inet | awk '{ print $2 }'`
+   echo $i : $ip
+done
+echo "-----------------------------------------------------------------------------";
+# Partion et disques :
+df -lhT
+echo "-----------------------------------------------------------------------------";
+# java
+if java -version 2>/dev/null;
+then
+echo "JAVA:"`java -version 2>&1 | head -n1`;
+else echo "JAVA:N/C";
+fi
+echo "-----------------------------------------------------------------------------";
+# Software
+packages="dmidecode g++ gcc gdm bzip iptables apache apache2 httpd lighttpd perl php php4 php5 postfix exim sendmail subversion sun-j2re1.5tomcat tomcat4 tomcat5 tomcat5.5 tomcat6 postgresql mysql-client mysql-server mysql mysqld oracle squid nfs-server samba-common smbclient ethtool ethstatus tcpdump elinks vzctl vzquota vzdump vzprocps dellomsa bridge-utils locales-all ccze htop nmap less ethstatus psmisc mailx";
+
+if [ $distribution = "Debian" ];
+then for name in $packages;
+     do version=`dpkg -l | grep "  $name " |tail -n1|awk '{print $3}' 2> /dev/null`
+     if [ "$version" ]
+     then echo "$name:$version";
+     fi
+     done
+elif [ $distribution = "Ubuntu" ];
+     then for name in $packages;
+     do version=`dpkg -l | grep "  $name " |tail -n1|awk '{print $3}' 2> /dev/null`
+     if [ "$version" ]
+     then echo "$name:$version";
+     fi
+     done
+elif [ $distribution = "RedHat" ];
+     then for name in $packages;
+     do version=`rpm -qa $name`;
+     if [ "$version" ]
+     then echo "$version";
+     fi
+     done
+elif [ $distribution = "CentOS" ];
+     then for name in $packages;
+     do version=`rpm -qa $name`;
+     if [ "$version" ]
+     then echo "$version";
+     fi
+     done
+elif [ $distribution = "Arch" ];
+     then for name in $packages;
+     do version=`pacman -Q | grep $name`;
+     if [ "$version" ]
+     then echo "$version";
+     fi
+     done
+else echo 'N/C';
+fi;
+echo "-----------------------------------------------------------------------------";
+if [ -f /usr/sbin/vzlist ];
+then 
+sudo /usr/sbin/vzlist;
+echo "-----------------------------------------------------------------------------";
+fi

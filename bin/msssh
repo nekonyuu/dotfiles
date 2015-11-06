@@ -1,0 +1,170 @@
+#!/bin/sh
+#
+# Little script that automatically launches a multi-paned tmux session
+# with ssh command lines in arguments
+#
+# Useful when you regularly need to access the same components,
+# on the same platform, and for building useful Bash aliases !
+#
+# First, you can use msssh one-liner form :
+#
+# mssh 'ssh root@server1' 'ssh root@server2'
+#
+# or, if you use -l (and/or -P)
+# mssh -l root server1 server2
+#
+# Secondly, you can directly paste ssh lines,
+# like hosting "exploit" lines on its standard input, with -i :
+#
+# Finally, suppose you built a file filled with ssh lines :
+#
+# cat client_platform
+# ssh root@firewall
+# ssh admin@foo
+# ssh lisa@bar
+#
+# Then, you can use the filename, with -f option :
+#
+# msssh -f client_platform
+
+usage() {
+    cat <<EOF
+Usage: $0 [options] command...
+Opens multi-paned tmux session with ssh lines in standard input
+
+Options :
+        -h                              this usage
+
+Optional :
+        -s                              toggles tmux synchronize-panes
+                                        mode
+                                        default: unset
+
+        -i                              read from standard input
+                                        overrides -f
+                                        default: unset
+
+        -f <file>                       read sshlines from <file>
+
+        -l <login>                      login to use with ssh lines if
+                                        not given
+                                        default: \$USER
+
+        -P <protocol>                   protocol to use if not given
+                                        default: ssh
+EOF
+    exit 2
+}
+
+# Tmux lines are added each time a sshline is found
+complete_tmux_cmd_line_with_sshlines() {
+    SSHLINE=$(echo "$SSHLINE" | sed 's/^ *//g') # remove leading whitespaces
+    SSHLINE="${SSHLINE%\\n}" # chomp
+
+    # Does not contain space ? : should match the case when only host is given
+    if echo -n "$SSHLINE" | grep -qvE '[ "]'; then
+
+        # Does not contain @ ?
+        if echo -n "$SSHLINE" | grep -qv '@'; then
+            SSHLINE="$SSHPROTOCOL $SSHLOGIN@$(echo -n $SSHLINE)"
+        else
+            SSHLINE="$SSHPROTOCOL $(echo -n $SSHLINE)"
+        fi
+
+    fi
+
+    if "$FIRST_HOST"; then
+        TMUX_CMD_LINE="$(echo -n $TMUX_CMD_LINE) \"$SSHLINE\" ;"
+        FIRST_HOST=false
+    else
+        TMUX_CMD_LINE="$(echo -n $TMUX_CMD_LINE) tmux split-window -h \"$SSHLINE\" ;"
+        TMUX_CMD_LINE="$(echo -n $TMUX_CMD_LINE) tmux select-layout main-horizontal >/dev/null ;"
+    fi
+}
+
+# Requirements
+command -v tmux >/dev/null 2>&1
+[ $? != 0 ] && echo "I need tmux ! Please install it !" && exit 1
+
+# Default values
+SYNC_PANES=false
+READ_FROM_STDIN=false
+READ_FROM_FILE=false
+FIRST_HOST=true # special tmux treatment for the first host
+SSHLOGIN=$USER # should already be defined on every shell
+SSHPROTOCOL='ssh'
+
+# Parsing options
+while getopts ":hsif:l:P:" opt; do
+    case $opt in
+        h)
+            usage
+            ;;
+        s)
+            SYNC_PANES=true
+            ;;
+        i)
+            READ_FROM_STDIN=true
+            ;;
+        f)
+            READ_FROM_FILE=true
+            SSHFILE=$OPTARG
+            ;;
+        l)
+            SSHLOGIN=$OPTARG
+            ;;
+        P)
+            SSHPROTOCOL=$OPTARG
+            ;;
+        :)
+            echo "Option -$OPTARG needs an argument." >&2
+            ;;
+        \?)
+            echo "Invalid option: -$OPTARG." >&2
+            usage
+    esac
+done
+
+shift $((OPTIND-1))
+
+# Enough arguments ?
+! $READ_FROM_STDIN && ! $READ_FROM_FILE && [ $# -lt 1 ] && echo "Error: too few arguments." && usage
+
+# Are we already inside Tmux ?
+[ -n "$TMUX" ] && echo "Error : you're already inside Tmux. I still don't know how to handle that. Sorry." && exit 1
+
+TMUX_CMD_LINE="tmux new-session 'tmux new-window"
+OLDIFS=$IFS
+
+if $READ_FROM_STDIN; then
+    IFS="$(printf '\n')"
+    while read SSHLINE; do
+        [ -z "$SSHLINE" ] && continue
+        complete_tmux_cmd_line_with_sshlines
+    done
+elif $READ_FROM_FILE; then
+    IFS="$(printf '\n')"
+    while read SSHLINE; do
+        [ -z "$SSHLINE" ] && continue
+        complete_tmux_cmd_line_with_sshlines
+    done < "$SSHFILE"
+else # read arguments on the command line
+    for SSHLINE in "$@"; do
+        [ -z "$SSHLINE" ] && continue
+        complete_tmux_cmd_line_with_sshlines
+    done
+fi
+
+# Tiled mode
+TMUX_CMD_LINE="$(echo -n $TMUX_CMD_LINE) tmux select-layout tiled >/dev/null ;"
+
+# "sync-panes" mode
+if $SYNC_PANES; then
+    TMUX_CMD_LINE="$(echo -n $TMUX_CMD_LINE) tmux set-window-option synchronize-panes on >/dev/null ;"
+fi
+
+# Here we go !
+TMUX_CMD_LINE="$(echo $TMUX_CMD_LINE)'"
+sh -c "$TMUX_CMD_LINE"
+IFS=$OLDIFS
+
