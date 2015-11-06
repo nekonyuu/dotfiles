@@ -476,6 +476,11 @@ if [[ -x /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.
     ZSH_HIGHLIGHT_STYLES[path]='fg=blue'
 fi
 
+# NVM
+if [[ -f /usr/share/nvm/init-nvm.sh ]]; then
+    . /usr/share/nvm/init-nvm.sh
+fi
+
 # Others
 # virsh wrapper
 svirsh() {
