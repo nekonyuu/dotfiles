@@ -57,7 +57,7 @@ Plugin 'markcornick/vim-terraform'
 Plugin 'chriskempson/vim-tomorrow-theme'
 Plugin 'bronson/vim-trailing-whitespace'
 
-Plugin 'edkolev/promptline.vim'
+Plugin 'nekonyuu/promptline.vim'
 
 call vundle#end()
 """"""""""" END PLUGIN MANAGEMENT
@@ -91,7 +91,15 @@ set laststatus=2
 let g:airline#extensions#tabline#enabled = 1
 
 " Promptline config
-let g:promptline_preset = 'full'
+"let g:promptline_preset = 'full'
+"
+let g:promptline_theme = 'airline'
+let g:promptline_preset = {
+        \'a': [ promptline#slices#host(), promptline#slices#user() ],
+        \'b': [ promptline#slices#cwd() ],
+        \'c' : [ promptline#slices#vcs_branch() ],
+        \'x' : [ promptline#slices#git_status() ],
+        \'warn' : [ promptline#slices#last_exit_code(), promptline#slices#battery() ]}
 
 silent! colorscheme Tomorrow-Night
 set background=dark
