@@ -43,6 +43,12 @@ function __promptline_ps1 {
   # section "x" slices
   __promptline_wrapper "$(__promptline_git_status)" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; is_prompt_empty=0; }
 
+  # section "y" header
+  slice_prefix="${y_bg}${sep}${y_fg}${y_bg}${space}" slice_suffix="$space${y_sep_fg}" slice_joiner="${y_fg}${y_bg}${alt_sep}${space}" slice_empty_prefix="${y_fg}${y_bg}${space}"
+  [ $is_prompt_empty -eq 1 ] && slice_prefix="$slice_empty_prefix"
+  # section "y" slices
+  __promptline_wrapper "%*" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; is_prompt_empty=0; }
+
   # section "warn" header
   slice_prefix="${warn_bg}${sep}${warn_fg}${warn_bg}${space}" slice_suffix="$space${warn_sep_fg}" slice_joiner="${warn_fg}${warn_bg}${alt_sep}${space}" slice_empty_prefix="${warn_fg}${warn_bg}${space}"
   [ $is_prompt_empty -eq 1 ] && slice_prefix="$slice_empty_prefix"
@@ -233,6 +239,11 @@ function __promptline_right_prompt {
   # section "x" slices
   __promptline_wrapper "$(__promptline_git_status)" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; }
 
+  # section "y" header
+  slice_prefix="${y_sep_fg}${rsep}${y_fg}${y_bg}${space}" slice_suffix="$space${y_sep_fg}" slice_joiner="${y_fg}${y_bg}${alt_rsep}${space}" slice_empty_prefix=""
+  # section "y" slices
+  __promptline_wrapper "%*" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; }
+
   # close sections
   printf "%s" "$reset"
 }
@@ -270,6 +281,9 @@ function __promptline {
   local x_fg="${wrap}38;5;85${end_wrap}"
   local x_bg="${wrap}48;5;234${end_wrap}"
   local x_sep_fg="${wrap}38;5;234${end_wrap}"
+  local y_fg="${wrap}38;5;255${end_wrap}"
+  local y_bg="${wrap}48;5;238${end_wrap}"
+  local y_sep_fg="${wrap}38;5;238${end_wrap}"
   if [[ -n ${ZSH_VERSION-} ]]; then
     PROMPT="$(__promptline_left_prompt)"
     RPROMPT="$(__promptline_right_prompt)"
