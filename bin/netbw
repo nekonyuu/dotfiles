@@ -1,0 +1,43 @@
+#!/bin/bash
+# Author: Julien Bonachera
+
+function _netbw_units(){
+  for i in  /sys/class/net/*/statistics/rx_*; do
+    echo $(basename $i)| cut -f 2- -d _
+  done | sort -u
+}
+
+function _netbw_getstats(){
+  cat /sys/class/net/$1/statistics/${2}_${NETBW_UNIT:-bytes}
+}
+
+function _netbw_once(){
+  iface=$1
+
+  R2=$(_netbw_getstats $1 rx)
+  T2=$(_netbw_getstats $1 tx)
+  TBPS=$(numfmt --to=iec $(expr $T2 - ${tx[$iface]}))
+  RBPS=$(numfmt --to=iec  $(expr $R2 - ${rx[$iface]}))
+  rx[$iface]=$R2
+  tx[$iface]=$T2
+  echo -n "$1: tx: ${TBPS}${NETBW_UNIT:-bytes} - rx: ${RBPS}${NETBW_UNIT:-bytes} "
+}
+
+function netbw(){
+  if [ -z "$1" ]; then
+    echo "Usage: $0 <iface>"
+  else
+    iface=$1
+    typeset -A rx
+    typeset -A tx
+    rx[$iface]=$(_netbw_getstats $1 rx)
+    tx[$iface]=$(_netbw_getstats $1 tx)
+    while [ /bin/true ]; do
+      echo -ne '\r\e[K'
+      _netbw_once $1
+      sleep ${NETBW_FREQ:-1}
+    done
+  fi
+}
+
+netbw()
