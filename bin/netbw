@@ -39,5 +39,3 @@ function netbw(){
     done
   fi
 }
-
-netbw()

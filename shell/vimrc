@@ -1,9 +1,5 @@
 set nocompatible
 
-" Syntax
-filetype plugin indent on
-syntax on
-
 set number
 set hlsearch
 set showmatch
@@ -42,7 +38,7 @@ Plugin 'edkolev/tmuxline.vim'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/syntastic'
+" Plugin 'scrooloose/syntastic'
 Plugin 'rodjek/vim-puppet'
 Plugin 'saltstack/salt-vim'
 Plugin 'mhinz/vim-signify'
@@ -53,15 +49,21 @@ Plugin 'tpope/vim-fugitive'
 
 Plugin 'plasticboy/vim-markdown'
 Plugin 'derekwyatt/vim-scala'
+Plugin 'derekwyatt/vim-sbt'
 Plugin 'tpope/vim-surround'
 Plugin 'markcornick/vim-terraform'
 Plugin 'chriskempson/vim-tomorrow-theme'
 Plugin 'bronson/vim-trailing-whitespace'
-
+Plugin 'leafgarland/typescript-vim'
+Plugin 'ensime/ensime-vim'
 Plugin 'nekonyuu/promptline.vim'
 
 call vundle#end()
 """"""""""" END PLUGIN MANAGEMENT
+
+" Syntax
+syntax on
+filetype plugin indent on
 
 " Nerdtree
 " autocmd vimenter * NERDTree

@@ -1,9 +1,5 @@
 set nocompatible
 
-" Syntax
-filetype plugin indent on
-syntax on
-
 set number
 set hlsearch
 set showmatch
@@ -50,15 +46,23 @@ Plugin 'godlygeek/tabular'
 Plugin 'majutsushi/tagbar'
 Plugin 'chase/vim-ansible-yaml'
 Plugin 'tpope/vim-fugitive'
+
 Plugin 'plasticboy/vim-markdown'
 Plugin 'derekwyatt/vim-scala'
+Plugin 'derekwyatt/vim-sbt'
 Plugin 'tpope/vim-surround'
 Plugin 'markcornick/vim-terraform'
 Plugin 'chriskempson/vim-tomorrow-theme'
+Plugin 'leafgarland/typescript-vim'
+Plugin 'ensime/ensime-vim'
 Plugin 'bronson/vim-trailing-whitespace'
 
 call vundle#end()
 """"""""""" END PLUGIN MANAGEMENT
+
+" Syntax
+filetype plugin indent on
+syntax on
 
 " Nerdtree
 autocmd vimenter * NERDTree
@@ -99,3 +103,8 @@ set listchars=nbsp:¬,eol:¶,tab:>-,extends:»,precedes:«,trail:•
 
 " bind sudo save, for sudo forgetters
 ca w!! w !sudo tee > /dev/null "%"
+
+" Scala parameters
+autocmd BufWritePost *.scala silent :EnTypeCheck
+nnoremap <localleader>t :EnType<CR>
+au FileType scala nnoremap <localleader>df :EnDeclaration<CR>

@@ -356,6 +356,7 @@ ls --color -d . &>/dev/null 2>&1 && alias ls='ls --color=tty' || alias ls='ls -G
 alias vimde='vim -u ~/.vimrc-ide'
 alias gvimde='gvim -u ~/.vimrc-ide'
 alias tmux='tmux -2'
+alias ip='ip -c'
 alias ll='ls -lh'
 alias l='ls -lhA1'
 alias la='ls -lhA'
@@ -526,3 +527,8 @@ if [[ "${AIRLINE_PS1}" == "1" ]] ; then
     source ~/.dotfiles/shell/airline_ps1.sh
 fi
 
+# TMOUT=1
+# TRAPALRM() { zle reset-prompt }
+if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+    source /etc/profile.d/vte.sh
+fi
