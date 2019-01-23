@@ -54,7 +54,6 @@ function __promptline_ps1 {
   [ $is_prompt_empty -eq 1 ] && slice_prefix="$slice_empty_prefix"
   # section "warn" slices
   __promptline_wrapper "$(__promptline_last_exit_code)" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; is_prompt_empty=0; }
-  __promptline_wrapper "$(__promptline_battery)" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; is_prompt_empty=0; }
 
   # close sections
   printf "%s" "${reset_bg}${sep}$reset$space"
@@ -232,7 +231,6 @@ function __promptline_right_prompt {
   slice_prefix="${warn_sep_fg}${rsep}${warn_fg}${warn_bg}${space}" slice_suffix="$space${warn_sep_fg}" slice_joiner="${warn_fg}${warn_bg}${alt_rsep}${space}" slice_empty_prefix=""
   # section "warn" slices
   __promptline_wrapper "$(__promptline_last_exit_code)" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; }
-  __promptline_wrapper "$(__promptline_battery)" "$slice_prefix" "$slice_suffix" && { slice_prefix="$slice_joiner"; }
 
   # section "x" header
   slice_prefix="${x_sep_fg}${rsep}${x_fg}${x_bg}${space}" slice_suffix="$space${x_sep_fg}" slice_joiner="${x_fg}${x_bg}${alt_rsep}${space}" slice_empty_prefix=""
@@ -266,24 +264,24 @@ function __promptline {
   local alt_rsep=""
   local reset="${wrap}0${end_wrap}"
   local reset_bg="${wrap}49${end_wrap}"
-  local a_fg="${wrap}38;5;17${end_wrap}"
-  local a_bg="${wrap}48;5;190${end_wrap}"
-  local a_sep_fg="${wrap}38;5;190${end_wrap}"
-  local b_fg="${wrap}38;5;255${end_wrap}"
-  local b_bg="${wrap}48;5;238${end_wrap}"
-  local b_sep_fg="${wrap}38;5;238${end_wrap}"
-  local c_fg="${wrap}38;5;85${end_wrap}"
-  local c_bg="${wrap}48;5;234${end_wrap}"
-  local c_sep_fg="${wrap}38;5;234${end_wrap}"
-  local warn_fg="${wrap}38;5;232${end_wrap}"
-  local warn_bg="${wrap}48;5;166${end_wrap}"
-  local warn_sep_fg="${wrap}38;5;166${end_wrap}"
-  local x_fg="${wrap}38;5;85${end_wrap}"
-  local x_bg="${wrap}48;5;234${end_wrap}"
-  local x_sep_fg="${wrap}38;5;234${end_wrap}"
-  local y_fg="${wrap}38;5;255${end_wrap}"
-  local y_bg="${wrap}48;5;238${end_wrap}"
-  local y_sep_fg="${wrap}38;5;238${end_wrap}"
+  local a_fg="${wrap}38;5;254${end_wrap}"
+  local a_bg="${wrap}48;5;237${end_wrap}"
+  local a_sep_fg="${wrap}38;5;237${end_wrap}"
+  local b_fg="${wrap}38;5;254${end_wrap}"
+  local b_bg="${wrap}48;5;239${end_wrap}"
+  local b_sep_fg="${wrap}38;5;239${end_wrap}"
+  local c_fg="${wrap}38;5;255${end_wrap}"
+  local c_bg="${wrap}48;5;235${end_wrap}"
+  local c_sep_fg="${wrap}38;5;235${end_wrap}"
+  local warn_fg="${wrap}38;5;234${end_wrap}"
+  local warn_bg="${wrap}48;5;215${end_wrap}"
+  local warn_sep_fg="${wrap}38;5;215${end_wrap}"
+  local x_fg="${wrap}38;5;255${end_wrap}"
+  local x_bg="${wrap}48;5;235${end_wrap}"
+  local x_sep_fg="${wrap}38;5;235${end_wrap}"
+  local y_fg="${wrap}38;5;254${end_wrap}"
+  local y_bg="${wrap}48;5;239${end_wrap}"
+  local y_sep_fg="${wrap}38;5;239${end_wrap}"
   if [[ -n ${ZSH_VERSION-} ]]; then
     PROMPT="$(__promptline_left_prompt)"
     RPROMPT="$(__promptline_right_prompt)"

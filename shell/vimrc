@@ -33,7 +33,8 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 Plugin 'VundleVim/Vundle.vim'
-Plugin 'bling/vim-airline'
+Plugin 'vim-airline/vim-airline'
+Plugin 'vim-airline/vim-airline-themes'
 Plugin 'edkolev/tmuxline.vim'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'scrooloose/nerdcommenter'
@@ -55,7 +56,7 @@ Plugin 'markcornick/vim-terraform'
 Plugin 'chriskempson/vim-tomorrow-theme'
 Plugin 'bronson/vim-trailing-whitespace'
 Plugin 'leafgarland/typescript-vim'
-Plugin 'ensime/ensime-vim'
+" Plugin 'ensime/ensime-vim'
 Plugin 'nekonyuu/promptline.vim'
 
 call vundle#end()
@@ -96,7 +97,8 @@ let g:airline#extensions#tabline#enabled = 1
 " Promptline config
 "let g:promptline_preset = 'full'
 "
-let g:promptline_theme = 'airline'
+let g:promptline_theme = 'minimalist'
+let g:airline_theme = 'minimalist'
 let g:promptline_preset = {
         \'a': [ promptline#slices#host(), promptline#slices#user() ],
         \'b': [ promptline#slices#cwd() ],
